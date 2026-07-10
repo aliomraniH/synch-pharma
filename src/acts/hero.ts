@@ -1,19 +1,18 @@
+import { COPY } from '../content/copy'
 import type { Act, ActContext } from './act'
 
 /** ACT 1 — HERO: "One truth layer. Zero new logins." */
 const hero: Act = {
   id: 'hero',
-  title: 'One truth layer. Zero new logins.',
+  title: COPY.hero.headline,
   mount(el: HTMLElement, ctx: ActContext): void {
     el.innerHTML = `
-      <p class="eyebrow">SynchPharma · coordination architecture</p>
-      <h1>One truth layer.<br />Zero new logins.</h1>
-      <p class="hero-lede">
-        We don't force sites, CROs, labs, and regulators onto another portal.
-        We run a shared, verifiable coordination spine — govern the data, not
-        the workflow.
-      </p>
+      <p class="eyebrow">${COPY.hero.eyebrow}</p>
+      <h1>${COPY.hero.headlineLines[0]}<br />${COPY.hero.headlineLines[1]}</h1>
+      <p class="hero-lede">${COPY.hero.subhead}</p>
+      <p class="lede">${COPY.hero.body}</p>
       <div class="hero-net" aria-hidden="true">${networkSvg(ctx)}</div>
+      <p style="color: var(--muted); margin-top: var(--space-5);">${COPY.hero.transition}</p>
     `
     if (!ctx.prefersReducedMotion) {
       el.querySelectorAll<SVGElement>('.pulse').forEach((node, i) => {
@@ -25,11 +24,11 @@ const hero: Act = {
 
 function networkSvg(ctx: ActContext): string {
   const nodes = [
-    { x: 90, y: 60, label: 'Site' },
-    { x: 300, y: 40, label: 'CRO' },
-    { x: 510, y: 70, label: 'Lab' },
-    { x: 180, y: 170, label: 'Vendor' },
-    { x: 420, y: 175, label: 'Regulator' },
+    { x: 90, y: 60, label: 'Orchestrator' },
+    { x: 300, y: 40, label: 'Data Steward' },
+    { x: 510, y: 70, label: 'Partner Liaison' },
+    { x: 180, y: 170, label: 'Compliance Sentinel' },
+    { x: 420, y: 175, label: 'Site Success' },
     { x: 300, y: 110, label: 'Spine' },
   ]
   const hub = nodes[5]

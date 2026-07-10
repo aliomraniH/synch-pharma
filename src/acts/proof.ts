@@ -1,20 +1,19 @@
+import { COPY } from '../content/copy'
 import type { Act, ActContext } from './act'
 
 /** ACT 5 — PROOF & CONTACT: precedent strip + CTA. */
 const proof: Act = {
   id: 'proof',
-  title: 'Proof & contact',
+  title: COPY.proof.headline,
   mount(el: HTMLElement, _ctx: ActContext): void {
-    const precedents = [
-      { name: 'ISO 20022', note: 'one financial-messaging truth layer' },
-      { name: 'Open Banking', note: 'govern data access, not the app' },
-      { name: 'Digital Data Flow', note: 'protocol → study, machine-readable' },
-    ]
+    const ctaSubject = encodeURIComponent(COPY.proof.cta.contactSubject)
     el.innerHTML = `
-      <p class="eyebrow">Proof &amp; contact</p>
-      <h2>Standardized truth layers already won elsewhere.</h2>
+      <p class="eyebrow">${COPY.proof.eyebrow}</p>
+      <h2>${COPY.proof.headline}</h2>
+      <p class="lede">${COPY.proof.subhead}</p>
+      <p class="lede">${COPY.proof.body}</p>
       <div class="precedent-strip">
-        ${precedents
+        ${COPY.proof.precedents
           .map(
             (p) => `
           <div class="precedent">
@@ -25,15 +24,13 @@ const proof: Act = {
           .join('')}
       </div>
       <div class="cta">
-        <h3>Become a sponsor of choice.</h3>
-        <p class="lede">
-          Faster activation, fewer reconciliation queries, one verifiable source
-          of truth across every partner.
-        </p>
-        <a class="btn primary" href="mailto:partners@synchpharma.example?subject=Coordination%20spine">
-          Talk to the coordination team
+        <h3>${COPY.proof.cta.heading}</h3>
+        <p class="lede">${COPY.proof.cta.body}</p>
+        <a class="btn primary" href="mailto:${COPY.proof.cta.contactEmail}?subject=${ctaSubject}">
+          ${COPY.proof.cta.buttonLabel}
         </a>
       </div>
+      <p style="color: var(--muted); margin-top: var(--space-5); font-style: italic;">${COPY.proof.closingLine}</p>
     `
   },
 }

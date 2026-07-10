@@ -1,39 +1,51 @@
+import { COPY } from '../content/copy'
 import type { Act, ActContext } from './act'
 
 /** ACT 2 — THE PROBLEM: portal sprawl + an interactive "portal fatigue" counter. */
 const problem: Act = {
   id: 'problem',
-  title: 'Portal sprawl',
+  title: COPY.problem.headline,
   mount(el: HTMLElement, ctx: ActContext): void {
+    const cfg = COPY.problem.counter
     el.innerHTML = `
-      <p class="eyebrow">The problem</p>
-      <h2>Every partner ships another portal.</h2>
-      <p class="lede">
-        Fragmented logins. Stale copies of the truth. Each new system is one more
-        password, one more export, one more version of a fact that has already
-        moved on.
-      </p>
+      <p class="eyebrow">${COPY.problem.eyebrow}</p>
+      <h2>${COPY.problem.headline}</h2>
+      <p class="lede">${COPY.problem.subhead}</p>
+      <p class="lede">${COPY.problem.body}</p>
+      <p class="lede">${COPY.problem.bodySecondary}</p>
       <div class="fatigue">
-        <div class="fatigue-num mono" data-count>0</div>
-        <div class="fatigue-cap">portals a single site juggles across sponsors</div>
-        <button class="btn" data-add>+ onboard another portal</button>
-        <button class="btn ghost" data-collapse>collapse to one spine</button>
+        <div class="fatigue-num mono" data-count>${cfg.initial}</div>
+        <div class="fatigue-cap">${cfg.captionMany}</div>
+        <button class="btn" data-add>${cfg.addLabel}</button>
+        <button class="btn ghost" data-collapse>${cfg.collapseLabel}</button>
       </div>
+      <p style="color: var(--muted); margin-top: var(--space-5);">${COPY.problem.transition}</p>
     `
     const numEl = el.querySelector<HTMLElement>('[data-count]')!
     const cap = el.querySelector<HTMLElement>('.fatigue-cap')!
-    let count = 6
+    const overloadNote = el.querySelector<HTMLElement>('.fatigue')!
+    let count: number = cfg.initial
     const render = () => {
       numEl.textContent = String(count)
       numEl.classList.toggle('overload', count >= 9)
       cap.textContent =
-        count <= 1
-          ? 'truth layer a site needs with SynchPharma'
-          : 'portals a single site juggles across sponsors'
+        count <= cfg.collapsedValue
+          ? cfg.captionOne
+          : cfg.captionMany
+      // Show overload note when count tips into overload
+      if (count >= 9 && !overloadNote.querySelector('.overload-note')) {
+        const note = document.createElement('p')
+        note.className = 'overload-note'
+        note.style.cssText = 'color: var(--alarm); font-size: 0.9rem; margin-top: var(--space-2);'
+        note.textContent = cfg.overloadNote
+        cap.after(note)
+      } else if (count < 9) {
+        overloadNote.querySelector('.overload-note')?.remove()
+      }
     }
     render()
     el.querySelector('[data-add]')!.addEventListener('click', () => {
-      count = Math.min(count + 1, 14)
+      count = Math.min(count + 1, cfg.max)
       render()
       if (!ctx.prefersReducedMotion)
         numEl.animate(
@@ -42,7 +54,7 @@ const problem: Act = {
         )
     })
     el.querySelector('[data-collapse]')!.addEventListener('click', () => {
-      count = 1
+      count = cfg.collapsedValue
       render()
     })
   },

@@ -124,46 +124,190 @@ export function runSim(seed: number, steps: number): LedgerEvent[] {
   return events
 }
 
+/** Metrics about site success based on verified entries (excluding quarantined). */
+export interface SiteSuccessMetrics {
+  activationDays: number
+  queryRatePct: number
+  verifiedSharePct: number
+  quarantinedExcluded: number
+}
+
+/**
+ * Tracks a pending injection awaiting compliance-sentinel detection and flagging.
+ * The sentinel flags within at most 3 ticks, deterministically based on seq.
+ */
+interface PendingInjection {
+  event: LedgerEvent
+  injectedAtSeq: number
+}
+
 /**
  * Stateful wrapper for the interactive SPINE act. Steps the same deterministic
- * stream the validator checks, and lets a visitor inject a stale fact and watch
- * reconciliation catch it.
+ * stream the validator checks, and lets a visitor inject stale/suspicious facts
+ * and watch the compliance-sentinel reconciliation catch them.
+ *
+ * Tick-based deterministic simulation of five product agents:
+ * - orchestrator, data-steward, partner-liaison, compliance-sentinel, site-success
  */
 export class LedgerSimulation {
   readonly seed: number
   private rng: () => number
   private seq = 0
+  private tickCounter = 0
   events: LedgerEvent[] = []
+  private pendingInfections: PendingInjection[] = []
 
   constructor(seed = 42) {
     this.seed = seed
     this.rng = mulberry32(seed)
   }
 
-  /** Append the next deterministic event. */
-  step(): LedgerEvent {
+  /**
+   * Advance one tick. Generates one deterministic event and processes any
+   * pending injections that should be flagged by the compliance-sentinel.
+   * Returns all entries emitted this tick (typically 1-2 events).
+   */
+  tick(): LedgerEvent[] {
+    const emitted: LedgerEvent[] = []
+
+    // Generate next deterministic event from the RNG stream.
     const evt = generateEvent(this.rng, this.seq++)
+    emitted.push(evt)
     this.events.push(evt)
-    return evt
+
+    // Process pending injections: compliance-sentinel flags stale facts
+    // deterministically within 1-3 ticks based on injection seq.
+    for (let i = this.pendingInfections.length - 1; i >= 0; i--) {
+      const pending = this.pendingInfections[i]
+      const ticksSinceInjection = this.tickCounter - pending.injectedAtSeq
+      // Use deterministic delay: (seq % 3) + 1 maps to 1, 2, or 3 ticks.
+      const flagAtTick = (pending.injectedAtSeq % 3) + 1
+      if (ticksSinceInjection === flagAtTick) {
+        // Flip verdict to stale and emit a sentinel flag event.
+        pending.event.verdict = 'stale'
+        pending.event.value = buildValue(
+          pending.event.kind,
+          pending.event.subject,
+          'stale',
+        )
+
+        // Emit a decision event from the compliance-sentinel.
+        const flagEvent: LedgerEvent = {
+          id: `lg-${String(this.seq).padStart(4, '0')}-flagd`,
+          kind: 'decision',
+          subject: pending.event.subject,
+          value: `compliance-sentinel flags ${pending.event.subject} as stale`,
+          provenance: 'tool',
+          verdict: 'current',
+          actor: 'compliance-sentinel',
+          seq: this.seq++,
+        }
+        emitted.push(flagEvent)
+        this.events.push(flagEvent)
+        this.pendingInfections.splice(i, 1)
+      }
+    }
+
+    this.tickCounter++
+    return emitted
+  }
+
+  /** Append the next deterministic event. Backward compat for step(). */
+  step(): LedgerEvent {
+    const emitted = this.tick()
+    // Return the first generated event (not sentinel flags).
+    return emitted[0]
   }
 
   /**
    * Visitor action: inject a stale, unverifiable copy of a subject the ledger
-   * already holds. Reconciliation (below) will flag it.
+   * already holds. The compliance-sentinel will flag it within 1-3 ticks.
+   * If subject is not provided, uses the most recent subject from the ledger.
    */
-  injectStale(subject: string): LedgerEvent {
+  injectStaleFact(subject?: string): LedgerEvent {
+    const targetSubject = subject || this.getRecentSubject()
     const evt: LedgerEvent = {
       id: `lg-${String(this.seq).padStart(4, '0')}-injctd`,
       kind: 'claim',
-      subject,
-      value: `asserts ${subject} → (unverified external copy)`,
+      subject: targetSubject,
+      value: `asserts ${targetSubject} → (unverified external copy)`,
       provenance: 'retrieval',
       verdict: 'unverifiable',
       actor: 'external-portal',
       seq: this.seq++,
     }
     this.events.push(evt)
+    this.pendingInfections.push({
+      event: evt,
+      injectedAtSeq: this.tickCounter,
+    })
     return evt
+  }
+
+  /**
+   * Backward-compatible alias for injectStaleFact. Kept for existing code.
+   */
+  injectStale(subject: string): LedgerEvent {
+    return this.injectStaleFact(subject)
+  }
+
+  /**
+   * Visitor action: inject a suspicious instruction-like write that will be
+   * immediately (or within 1 tick) quarantined by the compliance-sentinel.
+   * Quarantined entries are excluded from metrics().
+   * If subject is not provided, uses the most recent subject from the ledger.
+   */
+  injectSuspiciousWrite(subject?: string): LedgerEvent {
+    const targetSubject = subject || this.getRecentSubject()
+    const evt: LedgerEvent = {
+      id: `lg-${String(this.seq).padStart(4, '0')}-suspicious`,
+      kind: 'claim',
+      subject: targetSubject,
+      value: `(suspicious instruction-like write to ${targetSubject})`,
+      provenance: 'tool',
+      verdict: 'quarantined',
+      actor: 'external-portal',
+      seq: this.seq++,
+    }
+    this.events.push(evt)
+    return evt
+  }
+
+  /**
+   * Site-success metrics computed from verified (non-quarantined) entries.
+   * Activations are decision-kind events; queries are claims; verified share
+   * is the percentage of entries with 'current' verdict.
+   * Quarantined entries are excluded entirely from these calculations.
+   */
+  metrics(): SiteSuccessMetrics {
+    const nonQuarantined = this.events.filter(
+      (e) => e.verdict !== 'quarantined',
+    )
+    const activationDays = nonQuarantined.filter(
+      (e) => e.kind === 'decision',
+    ).length
+    const totalClaims = nonQuarantined.filter(
+      (e) => e.kind === 'claim',
+    ).length
+    const queryRatePct =
+      totalClaims > 0 ? (activationDays / totalClaims) * 100 : 0
+    const verifiedCount = nonQuarantined.filter(
+      (e) => e.verdict === 'current',
+    ).length
+    const verifiedSharePct =
+      nonQuarantined.length > 0
+        ? (verifiedCount / nonQuarantined.length) * 100
+        : 0
+    const quarantinedExcluded = this.events.filter(
+      (e) => e.verdict === 'quarantined',
+    ).length
+
+    return {
+      activationDays,
+      queryRatePct,
+      verifiedSharePct,
+      quarantinedExcluded,
+    }
   }
 
   /**
@@ -196,6 +340,16 @@ export class LedgerSimulation {
   reset(): void {
     this.rng = mulberry32(this.seed)
     this.seq = 0
+    this.tickCounter = 0
     this.events = []
+    this.pendingInfections = []
+  }
+
+  /** Helper: get the most recent subject from the ledger, or a default. */
+  private getRecentSubject(): string {
+    if (this.events.length > 0) {
+      return this.events[this.events.length - 1].subject
+    }
+    return SUBJECTS[0]
   }
 }
