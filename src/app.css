@@ -113,6 +113,20 @@ section[data-act='proof'] {
   height: auto;
   margin-top: var(--space-5);
 }
+/* Every act-level SVG (hero net, spine agent net) must shrink with the
+ * viewport — prevents horizontal overflow on narrow (≤380px) screens. */
+.act svg {
+  max-width: 100%;
+  height: auto;
+}
+.agent-net svg {
+  width: 100%;
+  height: auto;
+}
+/* Metrics row wraps instead of forcing the act wider than the viewport. */
+.metrics-row {
+  flex-wrap: wrap;
+}
 .edge {
   stroke: var(--line);
   stroke-width: 1.5;
