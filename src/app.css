@@ -1,5 +1,49 @@
-/* Component styles for the five acts. Tokens come from tokens.css. */
+/*
+ * SynchPharma component styles. Tokens come from tokens.css — NO raw hex here.
+ * Every animation/transition is gated behind
+ *   @media (prefers-reduced-motion: no-preference)
+ * and further backstopped by the reduce block in tokens.css.
+ */
 
+/* ============================================================= *
+ * PAGE LAYOUT — five acts as one coherent document
+ * ============================================================= */
+#app {
+  display: block;
+}
+/* Alternating surfaces give the single-page scroll a rhythm without breaking
+ * the shared max-width column. data-act hooks are set in index.html. */
+.act {
+  position: relative;
+  scroll-margin-top: var(--space-4);
+}
+section[data-act='problem'],
+section[data-act='partners'] {
+  background: var(--wash-panel);
+}
+section[data-act='proof'] {
+  border-bottom: none;
+}
+.act > .eyebrow:first-child {
+  margin-top: 0;
+}
+
+/* ============================================================= *
+ * TYPOGRAPHY HELPERS
+ * ============================================================= */
+.lede,
+.hero-lede {
+  color: var(--muted);
+  font-size: 1.1rem;
+  max-width: 62ch;
+}
+.hero-lede {
+  font-size: 1.2rem;
+}
+
+/* ============================================================= *
+ * BUTTONS / CTAs
+ * ============================================================= */
 .btn {
   border: 1px solid var(--line);
   background: var(--card);
@@ -7,9 +51,22 @@
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius);
   font-size: 0.9rem;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
 }
 .btn:hover {
+  border-color: var(--teal);
+  box-shadow: var(--shadow-1);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
   border-color: var(--teal);
 }
 .btn.ghost {
@@ -17,22 +74,40 @@
 }
 .btn.primary {
   background: var(--teal);
-  color: #fff;
+  color: var(--on-accent);
   border-color: var(--teal);
   text-decoration: none;
   display: inline-block;
   padding: var(--space-3) var(--space-4);
   font-weight: 600;
 }
-
-.lede,
-.hero-lede {
-  color: var(--muted);
-  font-size: 1.1rem;
-  max-width: 62ch;
+.btn.primary:hover {
+  box-shadow: var(--shadow-2);
 }
 
-/* HERO */
+/* ============================================================= *
+ * CARD — generic elevated surface component
+ * ============================================================= */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-1);
+  transition:
+    box-shadow var(--dur) var(--ease-out),
+    transform var(--dur) var(--ease-out);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .card:hover {
+    box-shadow: var(--shadow-2);
+    transform: translateY(-2px);
+  }
+}
+
+/* ============================================================= *
+ * HERO — SVG agent network: edges + traveling dataflow pulses
+ * ============================================================= */
 .hero-net svg {
   width: 100%;
   height: auto;
@@ -60,7 +135,52 @@
   fill: var(--amber);
 }
 
-/* PROBLEM */
+@media (prefers-reduced-motion: no-preference) {
+  /* Edges shimmer a dashed "dataflow" toward the spine. */
+  .edge {
+    stroke-dasharray: 4 6;
+    animation: edge-flow 1.4s linear infinite;
+  }
+  .node.hub {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: hub-breathe 3.2s var(--ease-in-out) infinite;
+  }
+  /* Traveling pulses glow as they move (motion path is the SVG <animateMotion>);
+   * hero.ts staggers each via style.animationDelay, which drives this keyframe. */
+  .pulse {
+    animation: pulse-glow 2.4s var(--ease-in-out) infinite;
+  }
+}
+@keyframes edge-flow {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+    r: 2.5;
+  }
+  50% {
+    opacity: 1;
+    r: 4;
+  }
+}
+@keyframes hub-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+/* ============================================================= *
+ * PROBLEM — portal-fatigue counter
+ * ============================================================= */
 .fatigue {
   margin-top: var(--space-4);
   display: flex;
@@ -73,16 +193,19 @@
   font-weight: 500;
   color: var(--indigo);
   min-width: 2ch;
+  transition: color var(--dur) var(--ease-out);
 }
 .fatigue-num.overload {
-  color: var(--verdict-quarantined);
+  color: var(--alarm);
 }
 .fatigue-cap {
   color: var(--muted);
   max-width: 20ch;
 }
 
-/* SPINE / ledger */
+/* ============================================================= *
+ * SPINE / LEDGER — live-typing monospace ledger
+ * ============================================================= */
 .spine-controls {
   display: flex;
   flex-wrap: wrap;
@@ -96,8 +219,12 @@
   max-height: 320px;
   overflow-y: auto;
   font-size: 0.85rem;
+  box-shadow: inset 0 1px 0 var(--card);
 }
-.ledger .row {
+/* .row is emitted by spine.ts; .ledger-row is the same treatment as a
+ * standalone component class for reuse. */
+.ledger .row,
+.ledger-row {
   display: grid;
   grid-template-columns: 44px 150px 96px 1fr auto;
   gap: var(--space-2);
@@ -105,12 +232,17 @@
   padding: var(--space-2) var(--space-3);
   border-bottom: 1px solid var(--line);
   white-space: nowrap;
+  font-family: var(--font-mono);
 }
-.ledger .row:last-child {
+.ledger .row:last-child,
+.ledger-row:last-child {
   border-bottom: none;
 }
 .seq {
   color: var(--muted);
+}
+.actor {
+  color: var(--ink);
 }
 .kind {
   color: var(--muted);
@@ -125,32 +257,107 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.chip {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  padding: 2px 8px;
-  border-radius: 999px;
-  color: #fff;
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Each row types in from the left; newest row shows a blinking caret so the
+   * ledger reads as if an agent is writing to it live. */
+  .ledger .row,
+  .ledger-row {
+    animation: ledger-in 0.32s var(--ease-out) both;
+  }
+  .ledger .row:last-child .subject::after,
+  .ledger-row:last-child .subject::after {
+    content: '▋';
+    margin-left: 2px;
+    color: var(--teal);
+    animation: caret-blink 1s steps(1, end) infinite;
+  }
 }
-.verdict-current {
-  background: var(--verdict-current);
+@keyframes ledger-in {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
-.verdict-stale {
-  background: var(--verdict-stale);
-}
-.verdict-unverifiable {
-  background: var(--verdict-unverifiable);
-}
-.verdict-quarantined {
-  background: var(--verdict-quarantined);
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
 }
 .recon-note {
   margin-top: var(--space-2);
   color: var(--teal);
   font-size: 0.85rem;
 }
+@media (prefers-reduced-motion: no-preference) {
+  .recon-note {
+    animation: ledger-in 0.32s var(--ease-out) both;
+  }
+}
 
-/* PARTNERS */
+/* ============================================================= *
+ * CHIP / VERDICT-BADGE — status pills that flip color smoothly
+ * ============================================================= */
+.chip,
+.verdict-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--on-accent);
+  background: var(--muted);
+  border: 1px solid transparent;
+  /* Smooth color flip when reconciliation changes a verdict. */
+  transition:
+    background-color var(--dur) var(--ease-in-out),
+    color var(--dur) var(--ease-in-out),
+    box-shadow var(--dur) var(--ease-in-out),
+    border-color var(--dur) var(--ease-in-out);
+}
+
+.verdict-current {
+  background: var(--verdict-current);
+}
+.verdict-stale {
+  background: var(--verdict-stale);
+}
+/* unverifiable → muted fill with an indigo governance ring */
+.verdict-unverifiable {
+  background: var(--verdict-unverifiable);
+  border-color: var(--verdict-unverifiable-ring);
+  box-shadow: inset 0 0 0 1px var(--verdict-unverifiable-ring);
+}
+/* quarantined → distinct alarm treatment (alarm red + tinted glow) */
+.verdict-quarantined {
+  background: var(--verdict-quarantined);
+  box-shadow: 0 0 0 1px var(--alarm), 0 0 8px var(--tint-alarm);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .verdict-quarantined {
+    animation: alarm-pulse 1.6s var(--ease-in-out) infinite;
+  }
+}
+@keyframes alarm-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 1px var(--alarm), 0 0 4px var(--tint-alarm);
+  }
+  50% {
+    box-shadow: 0 0 0 1px var(--alarm), 0 0 12px var(--tint-alarm);
+  }
+}
+
+/* ============================================================= *
+ * PARTNERS / PROOF — standards + precedent cards
+ * ============================================================= */
 .std-row,
 .precedent-strip {
   display: flex;
@@ -166,6 +373,19 @@
   padding: var(--space-3);
   min-width: 160px;
   flex: 1;
+  box-shadow: var(--shadow-1);
+  transition:
+    box-shadow var(--dur) var(--ease-out),
+    transform var(--dur) var(--ease-out),
+    border-color var(--dur) var(--ease-out);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .std-card:hover,
+  .precedent:hover {
+    box-shadow: var(--shadow-2);
+    transform: translateY(-2px);
+    border-color: var(--teal);
+  }
 }
 .std-name,
 .precedent-name {
@@ -179,11 +399,14 @@
   font-size: 0.9rem;
 }
 
-/* PROOF / CTA */
+/* ============================================================= *
+ * PROOF / CTA
+ * ============================================================= */
 .cta {
   margin-top: var(--space-5);
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: var(--space-5);
+  box-shadow: var(--shadow-1);
 }
