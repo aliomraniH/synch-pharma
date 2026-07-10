@@ -1,0 +1,206 @@
+{
+  "seed": 42,
+  "steps": 20,
+  "events": [
+    {
+      "id": "lg-0000-86cec4",
+      "kind": "knowledge",
+      "subject": "regulator/submission-slot",
+      "value": "records regulator/submission-slot → current",
+      "provenance": "synthesized",
+      "verdict": "current",
+      "actor": "compliance-sentinel",
+      "seq": 0
+    },
+    {
+      "id": "lg-0001-e1ce9a",
+      "kind": "decision",
+      "subject": "regulator/submission-slot",
+      "value": "commits regulator/submission-slot → current",
+      "provenance": "retrieval",
+      "verdict": "current",
+      "actor": "data-steward",
+      "seq": 1
+    },
+    {
+      "id": "lg-0002-9c51a6",
+      "kind": "knowledge",
+      "subject": "usdm/protocol-mapping",
+      "value": "records usdm/protocol-mapping → stale",
+      "provenance": "synthesized",
+      "verdict": "stale",
+      "actor": "compliance-sentinel",
+      "seq": 2
+    },
+    {
+      "id": "lg-0003-0812df",
+      "kind": "knowledge",
+      "subject": "regulator/submission-slot",
+      "value": "records regulator/submission-slot → current",
+      "provenance": "tool",
+      "verdict": "current",
+      "actor": "orchestrator",
+      "seq": 3
+    },
+    {
+      "id": "lg-0004-06f192",
+      "kind": "claim",
+      "subject": "usdm/protocol-mapping",
+      "value": "asserts usdm/protocol-mapping → current",
+      "provenance": "human",
+      "verdict": "current",
+      "actor": "data-steward",
+      "seq": 4
+    },
+    {
+      "id": "lg-0005-732c5d",
+      "kind": "handoff",
+      "subject": "dia-eisf/document-index",
+      "value": "passes dia-eisf/document-index → current",
+      "provenance": "human",
+      "verdict": "current",
+      "actor": "orchestrator",
+      "seq": 5
+    },
+    {
+      "id": "lg-0006-a54c39",
+      "kind": "claim",
+      "subject": "ich-m11/protocol-section",
+      "value": "asserts ich-m11/protocol-section → current",
+      "provenance": "synthesized",
+      "verdict": "current",
+      "actor": "orchestrator",
+      "seq": 6
+    },
+    {
+      "id": "lg-0007-3445cd",
+      "kind": "knowledge",
+      "subject": "cro/monitoring-visit",
+      "value": "records cro/monitoring-visit → current",
+      "provenance": "human",
+      "verdict": "current",
+      "actor": "data-steward",
+      "seq": 7
+    },
+    {
+      "id": "lg-0008-b16e38",
+      "kind": "knowledge",
+      "subject": "site-042/eISF-sync",
+      "value": "records site-042/eISF-sync → stale",
+      "provenance": "synthesized",
+      "verdict": "stale",
+      "actor": "data-steward",
+      "seq": 8
+    },
+    {
+      "id": "lg-0009-2325fc",
+      "kind": "claim",
+      "subject": "sponsor/activation-metric",
+      "value": "asserts sponsor/activation-metric → unverifiable",
+      "provenance": "retrieval",
+      "verdict": "unverifiable",
+      "actor": "site-success",
+      "seq": 9
+    },
+    {
+      "id": "lg-0010-e6496d",
+      "kind": "claim",
+      "subject": "cdash/adverse-event",
+      "value": "asserts cdash/adverse-event → current",
+      "provenance": "retrieval",
+      "verdict": "current",
+      "actor": "orchestrator",
+      "seq": 10
+    },
+    {
+      "id": "lg-0011-2dfbc0",
+      "kind": "decision",
+      "subject": "sponsor/activation-metric",
+      "value": "commits sponsor/activation-metric → stale",
+      "provenance": "retrieval",
+      "verdict": "stale",
+      "actor": "orchestrator",
+      "seq": 11
+    },
+    {
+      "id": "lg-0012-ea86d8",
+      "kind": "handoff",
+      "subject": "usdm/protocol-mapping",
+      "value": "passes usdm/protocol-mapping → current",
+      "provenance": "human",
+      "verdict": "current",
+      "actor": "partner-liaison",
+      "seq": 12
+    },
+    {
+      "id": "lg-0013-babadf",
+      "kind": "decision",
+      "subject": "cdash/adverse-event",
+      "value": "commits cdash/adverse-event → current",
+      "provenance": "synthesized",
+      "verdict": "current",
+      "actor": "partner-liaison",
+      "seq": 13
+    },
+    {
+      "id": "lg-0014-e3e405",
+      "kind": "knowledge",
+      "subject": "regulator/submission-slot",
+      "value": "records regulator/submission-slot → quarantined",
+      "provenance": "synthesized",
+      "verdict": "quarantined",
+      "actor": "data-steward",
+      "seq": 14
+    },
+    {
+      "id": "lg-0015-5034cb",
+      "kind": "decision",
+      "subject": "fhir/subject-status",
+      "value": "commits fhir/subject-status → stale",
+      "provenance": "tool",
+      "verdict": "stale",
+      "actor": "partner-liaison",
+      "seq": 15
+    },
+    {
+      "id": "lg-0016-214652",
+      "kind": "handoff",
+      "subject": "site-042/eISF-sync",
+      "value": "passes site-042/eISF-sync → unverifiable",
+      "provenance": "retrieval",
+      "verdict": "unverifiable",
+      "actor": "compliance-sentinel",
+      "seq": 16
+    },
+    {
+      "id": "lg-0017-69b151",
+      "kind": "claim",
+      "subject": "cro/monitoring-visit",
+      "value": "asserts cro/monitoring-visit → current",
+      "provenance": "synthesized",
+      "verdict": "current",
+      "actor": "site-success",
+      "seq": 17
+    },
+    {
+      "id": "lg-0018-e30a7d",
+      "kind": "decision",
+      "subject": "cdash/adverse-event",
+      "value": "commits cdash/adverse-event → stale",
+      "provenance": "tool",
+      "verdict": "stale",
+      "actor": "orchestrator",
+      "seq": 18
+    },
+    {
+      "id": "lg-0019-5ea556",
+      "kind": "handoff",
+      "subject": "cdash/adverse-event",
+      "value": "passes cdash/adverse-event → unverifiable",
+      "provenance": "tool",
+      "verdict": "unverifiable",
+      "actor": "data-steward",
+      "seq": 19
+    }
+  ]
+}

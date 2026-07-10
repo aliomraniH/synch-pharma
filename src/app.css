@@ -1,0 +1,189 @@
+/* Component styles for the five acts. Tokens come from tokens.css. */
+
+.btn {
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.btn:hover {
+  border-color: var(--teal);
+}
+.btn.ghost {
+  background: transparent;
+}
+.btn.primary {
+  background: var(--teal);
+  color: #fff;
+  border-color: var(--teal);
+  text-decoration: none;
+  display: inline-block;
+  padding: var(--space-3) var(--space-4);
+  font-weight: 600;
+}
+
+.lede,
+.hero-lede {
+  color: var(--muted);
+  font-size: 1.1rem;
+  max-width: 62ch;
+}
+
+/* HERO */
+.hero-net svg {
+  width: 100%;
+  height: auto;
+  margin-top: var(--space-5);
+}
+.edge {
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+.node {
+  fill: var(--card);
+  stroke: var(--teal);
+  stroke-width: 2;
+}
+.node.hub {
+  fill: var(--teal);
+  stroke: var(--indigo);
+}
+.node-label {
+  fill: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.pulse {
+  fill: var(--amber);
+}
+
+/* PROBLEM */
+.fatigue {
+  margin-top: var(--space-4);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+.fatigue-num {
+  font-size: 3.4rem;
+  font-weight: 500;
+  color: var(--indigo);
+  min-width: 2ch;
+}
+.fatigue-num.overload {
+  color: var(--verdict-quarantined);
+}
+.fatigue-cap {
+  color: var(--muted);
+  max-width: 20ch;
+}
+
+/* SPINE / ledger */
+.spine-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-4) 0 var(--space-3);
+}
+.ledger {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  max-height: 320px;
+  overflow-y: auto;
+  font-size: 0.85rem;
+}
+.ledger .row {
+  display: grid;
+  grid-template-columns: 44px 150px 96px 1fr auto;
+  gap: var(--space-2);
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.ledger .row:last-child {
+  border-bottom: none;
+}
+.seq {
+  color: var(--muted);
+}
+.kind {
+  color: var(--muted);
+}
+.kind-decision {
+  color: var(--indigo);
+}
+.kind-handoff {
+  color: var(--teal);
+}
+.subject {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chip {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: #fff;
+}
+.verdict-current {
+  background: var(--verdict-current);
+}
+.verdict-stale {
+  background: var(--verdict-stale);
+}
+.verdict-unverifiable {
+  background: var(--verdict-unverifiable);
+}
+.verdict-quarantined {
+  background: var(--verdict-quarantined);
+}
+.recon-note {
+  margin-top: var(--space-2);
+  color: var(--teal);
+  font-size: 0.85rem;
+}
+
+/* PARTNERS */
+.std-row,
+.precedent-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+.std-card,
+.precedent {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  min-width: 160px;
+  flex: 1;
+}
+.std-name,
+.precedent-name {
+  color: var(--teal);
+  font-weight: 500;
+  margin-bottom: var(--space-1);
+}
+.std-note,
+.precedent-note {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* PROOF / CTA */
+.cta {
+  margin-top: var(--space-5);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--space-5);
+}

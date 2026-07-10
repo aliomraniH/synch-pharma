@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="SynchPharma — govern the data, not the workflow. A shared, verifiable coordination spine for pharma partners."
+    />
+    <title>SynchPharma — One truth layer. Zero new logins.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!--
+      Single-page app, 5 acts. Each <section data-act="..."> is a mount point.
+      The five canonical act ids are declared here so a static validator can
+      confirm every act is present without executing the bundle:
+      act ids: hero, problem, spine, partners, proof
+    -->
+    <main id="app">
+      <section class="act" id="act-hero" data-act="hero"></section>
+      <section class="act" id="act-problem" data-act="problem"></section>
+      <section class="act" id="act-spine" data-act="spine"></section>
+      <section class="act" id="act-partners" data-act="partners"></section>
+      <section class="act" id="act-proof" data-act="proof"></section>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

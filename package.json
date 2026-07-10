@@ -1,0 +1,19 @@
+{
+  "name": "synch-pharma",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "SynchPharma — interactive coordination-spine website (Vite + TypeScript SPA)",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "snapshot": "node scripts/gen-snapshot.mjs",
+    "validate": "node scripts/validate.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.21.5",
+    "typescript": "^5.4.5",
+    "vite": "^5.3.1"
+  }
+}

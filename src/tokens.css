@@ -1,0 +1,109 @@
+/*
+ * SynchPharma design tokens.
+ * Palette + type scale inherited from roche_deliverable_system.html per the brief.
+ * Consumed by act components as CSS custom properties — never hard-code hex in acts.
+ */
+:root {
+  /* Surfaces */
+  --bg: #e5e9ee;
+  --panel: #f7f9fb;
+  --card: #ffffff;
+
+  /* Ink */
+  --ink: #152437;
+  --muted: #5c6d7f;
+  --line: #c6d1db;
+
+  /* Semantic accents */
+  --teal: #0e767e; /* foundation */
+  --amber: #a96c25; /* sensor */
+  --indigo: #544ca0; /* governance */
+  --green: #2a7452; /* capability */
+
+  /* Verdict chips */
+  --verdict-current: var(--green);
+  --verdict-stale: var(--amber);
+  --verdict-unverifiable: var(--muted);
+  --verdict-quarantined: #9a2c3f;
+
+  /* Typography */
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Rhythm */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 40px;
+  --space-6: 64px;
+  --radius: 10px;
+  --maxw: 1080px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+.act {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4);
+  border-bottom: 1px solid var(--line);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  color: var(--ink);
+  line-height: 1.1;
+  margin: 0 0 var(--space-3);
+}
+
+h1 {
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: var(--space-2);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
