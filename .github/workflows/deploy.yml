@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
       - run: npm ci
       - run: npm run validate
@@ -36,5 +36,11 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # The repo's Pages site was never created, so deploy-pages 404'd on
+      # every run. configure-pages with enablement:true creates it using the
+      # workflow token (pages: write) before deploying.
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - id: deployment
         uses: actions/deploy-pages@v4
