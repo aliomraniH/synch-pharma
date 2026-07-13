@@ -232,6 +232,7 @@ section[data-act='proof'] {
   border-radius: var(--radius);
   max-height: 320px;
   overflow-y: auto;
+  overflow-x: auto; /* backstop: rows can scroll sideways rather than clip */
   font-size: 0.85rem;
   box-shadow: inset 0 1px 0 var(--card);
 }
@@ -423,4 +424,27 @@ section[data-act='proof'] {
   border-radius: var(--radius);
   padding: var(--space-5);
   box-shadow: var(--shadow-1);
+}
+
+/* ============================================================= *
+ * NARROW VIEWPORTS — ledger grid compression
+ * Placed last so it wins the cascade over the base .row rule.
+ * The verdict chip is the payoff of Act 3; it must stay visible
+ * at 380px without horizontal scrolling.
+ * ============================================================= */
+@media (max-width: 480px) {
+  .ledger .row,
+  .ledger-row {
+    grid-template-columns: 26px 76px 52px minmax(0, 1fr) auto;
+    gap: var(--space-1);
+    padding: var(--space-2);
+    font-size: 0.72rem;
+  }
+  .ledger .row .subject,
+  .ledger-row .subject,
+  .ledger .row .actor,
+  .ledger-row .actor {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
