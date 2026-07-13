@@ -2,7 +2,7 @@
 //   1. `npm run build` succeeds (tsc typecheck + vite bundle).
 //   2. index.html contains all five act ids: hero, problem, spine, partners, proof.
 //   3. runSim(42, 20) matches the committed test/sim-snapshot.json byte-for-byte.
-//   4. No file under src/sim/ uses the platform RNG (Math dot random).
+//   5. Built HTML contains all five agent capability-card role lines.
 //
 // This is the whole point of the cheap-tier routing: procedural work is safe
 // because this script — not a human — is the arbiter of "done".
@@ -19,7 +19,7 @@ const bad = (msg) => {
 }
 
 // ---- 1. build succeeds -----------------------------------------------------
-console.log('[1/4] build')
+console.log('[1/5] build')
 try {
   execSync('npm run build', { stdio: 'pipe' })
   ok('npm run build')
@@ -29,7 +29,7 @@ try {
 }
 
 // ---- 2. all five act ids present in index.html -----------------------------
-console.log('[2/4] act ids in index.html')
+console.log('[2/5] act ids in index.html')
 const ACT_IDS = ['hero', 'problem', 'spine', 'partners', 'proof']
 let indexHtml = ''
 try {
@@ -43,7 +43,7 @@ for (const id of ACT_IDS) {
 }
 
 // ---- 3. sim snapshot determinism ------------------------------------------
-console.log('[3/4] sim determinism (seed 42, first 20 events)')
+console.log('[3/5] sim determinism (seed 42, first 20 events)')
 try {
   const { runSim } = await loadEngine()
   const snapshot = JSON.parse(readFileSync('test/sim-snapshot.json', 'utf8'))
@@ -69,7 +69,7 @@ try {
 }
 
 // ---- 4. no platform RNG under src/sim/ ------------------------------------
-console.log('[4/4] no platform RNG in src/sim/')
+console.log('[4/5] no platform RNG in src/sim/')
 function walk(dir) {
   const out = []
   for (const name of readdirSync(dir)) {
@@ -93,6 +93,35 @@ for (const file of walk('src/sim')) {
   }
 }
 if (simClean) ok('src/sim/ is free of the platform RNG')
+
+// ---- 5. capability-card role lines in built output -------------------------
+console.log('[5/5] capability role lines in dist/')
+const ROLE_LINES = [
+  'routes work, owns the ledger view',
+  'writes claims with provenance; rejects unverifiable facts',
+  'handoffs to and from site & vendor systems',
+  'reconciles, flags stale/colliding, quarantines',
+  'reads only verified state; computes sponsor-of-choice metrics',
+]
+function distFiles(dir) {
+  const out = []
+  for (const name of readdirSync(dir)) {
+    const p = join(dir, name)
+    if (statSync(p).isDirectory()) out.push(...distFiles(p))
+    else if (/\.(html|js|css)$/.test(name)) out.push(p)
+  }
+  return out
+}
+let distBlob = ''
+try {
+  distBlob = distFiles('dist').map((f) => readFileSync(f, 'utf8')).join('\n')
+  for (const line of ROLE_LINES) {
+    if (distBlob.includes(line)) ok(`role line present: "${line.slice(0, 40)}…"`)
+    else bad(`role line missing from dist output: "${line}"`)
+  }
+} catch {
+  bad('could not read dist/ (build may have failed)')
+}
 
 // ---- verdict ---------------------------------------------------------------
 console.log('')
