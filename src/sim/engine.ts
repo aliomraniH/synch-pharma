@@ -220,6 +220,34 @@ export class LedgerSimulation {
   }
 
   /**
+   * Scripted append for interactive demos — does not consume the RNG stream.
+   * Used by scenarios.ts to demonstrate agent capabilities without affecting
+   * runSim() determinism.
+   */
+  appendScripted(
+    partial: Pick<LedgerEvent, 'kind' | 'actor' | 'subject' | 'provenance'> & {
+      value?: string
+      verdict?: Verdict
+    },
+  ): LedgerEvent {
+    const verdict = partial.verdict ?? 'current'
+    const value =
+      partial.value ?? buildValue(partial.kind, partial.subject, verdict)
+    const evt: LedgerEvent = {
+      id: `lg-${String(this.seq).padStart(4, '0')}-script`,
+      kind: partial.kind,
+      subject: partial.subject,
+      value,
+      provenance: partial.provenance,
+      verdict,
+      actor: partial.actor,
+      seq: this.seq++,
+    }
+    this.events.push(evt)
+    return evt
+  }
+
+  /**
    * Visitor action: inject a stale, unverifiable copy of a subject the ledger
    * already holds. The compliance-sentinel will flag it within 1-3 ticks.
    * If subject is not provided, uses the most recent subject from the ledger.
