@@ -17,7 +17,6 @@ const AGENTS = [
     id: 'orchestrator',
     name: 'Orchestrator',
     role: 'routes work, owns the ledger view',
-    glyph: '◎',
     accent: 'indigo',
     capabilities: [
       'Routes work items to the right agent role',
@@ -29,7 +28,6 @@ const AGENTS = [
     id: 'data-steward',
     name: 'Data Steward',
     role: 'writes claims with provenance; rejects unverifiable facts',
-    glyph: '✎',
     accent: 'teal',
     capabilities: [
       'Appends claims with tool or retrieval provenance',
@@ -41,7 +39,6 @@ const AGENTS = [
     id: 'partner-liaison',
     name: 'Partner Liaison',
     role: 'handoffs to and from site & vendor systems',
-    glyph: '⇄',
     accent: 'teal',
     capabilities: [
       'Emits handoff entries to site systems',
@@ -53,7 +50,6 @@ const AGENTS = [
     id: 'compliance-sentinel',
     name: 'Compliance Sentinel',
     role: 'reconciles, flags stale/colliding, quarantines',
-    glyph: '⚑',
     accent: 'amber',
     capabilities: [
       'Reconciles newest claim per subject',
@@ -65,7 +61,6 @@ const AGENTS = [
     id: 'site-success',
     name: 'Site Success',
     role: 'reads only verified state; computes sponsor-of-choice metrics',
-    glyph: '◈',
     accent: 'green',
     capabilities: [
       'Reads only verified, non-quarantined entries',
@@ -82,6 +77,20 @@ const KIND_EDGE_COLOR: Record<LedgerKind, string> = {
   decision: 'var(--indigo)',
   knowledge: 'var(--green)',
   handoff: 'var(--teal)',
+}
+
+/** 16x16 stroke icons, tinted by each card's accent via currentColor. */
+const ICONS: Record<string, string> = {
+  orchestrator:
+    '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="3.5" cy="8" r="1.8"/><circle cx="12.5" cy="3.5" r="1.8"/><circle cx="12.5" cy="12.5" r="1.8"/><path d="M5.2 7.2l5.6-2.9M5.2 8.8l5.6 2.9"/></svg>',
+  'data-steward':
+    '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 13.5l.9-3.4 7.3-7.3 2.5 2.5-7.3 7.3-3.4.9z"/><path d="M9.2 4.3l2.5 2.5"/></svg>',
+  'partner-liaison':
+    '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5h9m0 0L10 2.5M12.5 5L10 7.5"/><path d="M12.5 11h-9m0 0L6 8.5M3.5 11L6 13.5"/></svg>',
+  'compliance-sentinel':
+    '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.5V1.5"/><path d="M4 2.5h8.5L10 5.5l2.5 3H4"/></svg>',
+  'site-success':
+    '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2.5 13.5V9.5M6 13.5V5.5M9.5 13.5V7.5M13 13.5V3.5"/></svg>',
 }
 
 const spine: Act = {
@@ -107,11 +116,12 @@ const spine: Act = {
       <p class="lede">${COPY.spine.body}</p>
       <div class="spine-stage" data-stage>
         <div class="spine-scene" data-scene>
-          <svg class="spine-edges" viewBox="0 0 600 280" aria-hidden="true" data-edges></svg>
-          <div class="spine-hub" data-hub>
+          <svg class="spine-edges" viewBox="0 0 600 280" preserveAspectRatio="none" aria-hidden="true" data-edges></svg>
+          <div class="spine-hub" data-hub tabindex="0">
             <span class="spine-hub-glyph">⬡</span>
             <span class="spine-hub-label">Spine</span>
             <span class="mono spine-hub-count" data-spine-count>0 entries</span>
+            <span class="mono spine-hub-verified" data-spine-verified>—</span>
             <svg class="spine-hub-ring" viewBox="0 0 36 36" aria-hidden="true">
               <circle class="spine-ring-bg" cx="18" cy="18" r="15" />
               <circle class="spine-ring-fill" cx="18" cy="18" r="15" data-spine-ring />
@@ -122,7 +132,7 @@ const spine: Act = {
             <button type="button" class="agent-card accent-${a.accent}"
               data-agent="${a.id}" data-agent-idx="${i}"
               aria-pressed="false" aria-label="${a.name}: ${a.role}">
-              <span class="agent-glyph" aria-hidden="true">${a.glyph}</span>
+              <span class="agent-glyph" aria-hidden="true">${ICONS[a.id]}</span>
               <span class="agent-name">${a.name}</span>
               <span class="agent-role">${a.role}</span>
               <span class="agent-status-chip" data-status-for="${a.id}">idle</span>
@@ -141,6 +151,14 @@ const spine: Act = {
           <button type="button" class="btn primary" data-demo-capability>demo this capability</button>
         </aside>
       </div>
+      <div class="spine-legend" data-legend>
+        <span class="legend-item"><span class="legend-swatch swatch-claim" aria-hidden="true"></span>claims</span>
+        <span class="legend-item"><span class="legend-swatch swatch-decision" aria-hidden="true"></span>decisions</span>
+        <span class="legend-item"><span class="legend-swatch swatch-knowledge" aria-hidden="true"></span>knowledge</span>
+        <span class="legend-item"><span class="legend-swatch swatch-handoff" aria-hidden="true"></span>handoffs</span>
+        <span class="legend-item"><span class="legend-swatch swatch-flag" aria-hidden="true"></span>flags / quarantine</span>
+      </div>
+      <p class="demo-ticker mono" data-ticker aria-live="polite" hidden></p>
       <p class="lede spine-prompt">${COPY.spine.prompt}</p>
       <div class="spine-controls">
         <button class="btn" data-step>${COPY.spine.controls.append}</button>
@@ -149,27 +167,34 @@ const spine: Act = {
         <button class="btn" data-reconcile>${COPY.spine.controls.reconcile}</button>
         <button class="btn ghost" data-reset>${COPY.spine.controls.reset}</button>
       </div>
-      <div class="ledger-filters" data-filters role="group" aria-label="Filter ledger">
-        <span class="filter-label">filter:</span>
-        <select class="filter-chip" data-filter-actor aria-label="Filter by agent">
-          <option value="">all agents</option>
-          ${AGENTS.map((a) => `<option value="${a.id}">${a.name}</option>`).join('')}
-          <option value="external-portal">external-portal</option>
-        </select>
-        <select class="filter-chip" data-filter-kind aria-label="Filter by kind">
-          <option value="">all kinds</option>
-          <option value="claim">claim</option>
-          <option value="knowledge">knowledge</option>
-          <option value="decision">decision</option>
-          <option value="handoff">handoff</option>
-        </select>
-        <select class="filter-chip" data-filter-verdict aria-label="Filter by verdict">
-          <option value="">all verdicts</option>
-          <option value="current">current</option>
-          <option value="stale">stale</option>
-          <option value="unverifiable">unverifiable</option>
-          <option value="quarantined">quarantined</option>
-        </select>
+      <div class="ledger-filters" data-filters>
+        <div class="fchip-group" role="group" aria-label="Filter by agent" data-fgroup="actor">
+          <button type="button" class="fchip" data-fvalue="" aria-pressed="true">all agents</button>
+          ${[...AGENTS.map((a) => a.id), 'external-portal']
+            .map(
+              (id) =>
+                `<button type="button" class="fchip mono" data-fvalue="${id}" aria-pressed="false">${id}</button>`,
+            )
+            .join('')}
+        </div>
+        <div class="fchip-group" role="group" aria-label="Filter by kind" data-fgroup="kind">
+          <button type="button" class="fchip" data-fvalue="" aria-pressed="true">all kinds</button>
+          ${['claim', 'knowledge', 'decision', 'handoff']
+            .map(
+              (k) =>
+                `<button type="button" class="fchip mono fchip-kind-${k}" data-fvalue="${k}" aria-pressed="false">${k}</button>`,
+            )
+            .join('')}
+        </div>
+        <div class="fchip-group" role="group" aria-label="Filter by verdict" data-fgroup="verdict">
+          <button type="button" class="fchip" data-fvalue="" aria-pressed="true">all verdicts</button>
+          ${['current', 'stale', 'unverifiable', 'quarantined']
+            .map(
+              (v) =>
+                `<button type="button" class="fchip mono fchip-verdict-${v}" data-fvalue="${v}" aria-pressed="false">${v}</button>`,
+            )
+            .join('')}
+        </div>
       </div>
       <div class="ledger" role="log" aria-live="polite" aria-label="Coordination ledger" data-ledger></div>
       <div class="stat-cards" data-stat-cards aria-label="Site Success metrics">
@@ -221,21 +246,46 @@ const spine: Act = {
     }
     const statusTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
+    // viewBox is 600x280 mapped with preserveAspectRatio="none", so
+    // x/600 and y/280 are percentages of the scene box. Anchors sit inside
+    // each card's rectangle; the hub center matches .spine-hub's CSS top.
     const agentPositions = [
-      { x: 90, y: 50 },
-      { x: 510, y: 45 },
-      { x: 510, y: 195 },
-      { x: 90, y: 200 },
-      { x: 300, y: 230 },
+      { x: 72, y: 56 },
+      { x: 528, y: 56 },
+      { x: 528, y: 224 },
+      { x: 72, y: 224 },
+      { x: 300, y: 238 },
     ]
-    const hubPos = { x: 300, y: 115 }
+    const hubPos = { x: 300, y: 106 }
+
+    /** Gentle quadratic curve agent → hub; pulses ride the same path so they
+     *  never overshoot the nodes. Bow is perpendicular to the chord. */
+    const edgePath = (from: { x: number; y: number }, to: { x: number; y: number }): string => {
+      const mx = (from.x + to.x) / 2
+      const my = (from.y + to.y) / 2
+      const dx = to.x - from.x
+      const dy = to.y - from.y
+      const len = Math.hypot(dx, dy) || 1
+      const bow = Math.min(15, len * 0.1)
+      const cx = mx - (dy / len) * bow
+      const cy = my + (dx / len) * bow
+      return `M ${from.x} ${from.y} Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${to.x} ${to.y}`
+    }
+    const edgePaths = new Map<string, { toHub: string; fromHub: string }>(
+      AGENTS.map((a, i) => [
+        a.id,
+        {
+          toHub: edgePath(agentPositions[i], hubPos),
+          fromHub: edgePath(hubPos, agentPositions[i]),
+        },
+      ]),
+    )
 
     const drawEdges = () => {
-      const idleEdges = AGENTS.map((a, i) => {
-        const p = agentPositions[i]
-        return `<line class="spine-edge" data-edge-for="${a.id}"
-          x1="${p.x}" y1="${p.y}" x2="${hubPos.x}" y2="${hubPos.y}" />`
-      }).join('')
+      const idleEdges = AGENTS.map(
+        (a) => `<path class="spine-edge" data-edge-for="${a.id}"
+          d="${edgePaths.get(a.id)!.toHub}" />`,
+      ).join('')
       edgesSvg.innerHTML = `${idleEdges}<g data-pulses></g>`
     }
     drawEdges()
@@ -288,7 +338,6 @@ const spine: Act = {
     ) => {
       const idx = AGENTS.findIndex((a) => a.id === fromAgent)
       if (idx < 0) return
-      const p = agentPositions[idx]
       const color = isFlag ? 'var(--amber)' : KIND_EDGE_COLOR[kind]
       const pulseG = edgesSvg.querySelector('[data-pulses]')!
       const edge = edgesSvg.querySelector(`[data-edge-for="${fromAgent}"]`)
@@ -306,20 +355,14 @@ const spine: Act = {
       circle.setAttribute('class', `edge-pulse${kind === 'handoff' ? ' pulse-handoff' : ''}`)
       circle.setAttribute('r', '4')
       circle.setAttribute('fill', color)
-      const start = fromHub ? hubPos : p
-      const end = fromHub ? p : hubPos
-      circle.setAttribute('cx', String(start.x))
-      circle.setAttribute('cy', String(start.y))
       const anim = document.createElementNS(
         'http://www.w3.org/2000/svg',
         'animateMotion',
       )
       anim.setAttribute('dur', '0.7s')
       anim.setAttribute('fill', 'freeze')
-      anim.setAttribute(
-        'path',
-        `M ${start.x} ${start.y} L ${end.x} ${end.y}`,
-      )
+      const paths = edgePaths.get(fromAgent)!
+      anim.setAttribute('path', fromHub ? paths.fromHub : paths.toHub)
       circle.appendChild(anim)
       pulseG.appendChild(circle)
       setTimeout(() => {
@@ -352,10 +395,35 @@ const spine: Act = {
       const share = count > 0 ? verified / count : 0
       el.querySelector('[data-spine-count]')!.textContent =
         `${count} entr${count === 1 ? 'y' : 'ies'}`
+      const pct = Math.round(share * 100)
+      el.querySelector('[data-spine-verified]')!.textContent = `${pct}% verified`
+      const hub = el.querySelector<HTMLElement>('[data-hub]')!
+      hub.title = `${verified} of ${count} entries verified current — the green ring shows verified share`
+      hub.setAttribute(
+        'aria-label',
+        `Spine ledger: ${count} entries, ${pct}% verified current`,
+      )
       const ring = el.querySelector<SVGCircleElement>('[data-spine-ring]')!
       const circumference = 2 * Math.PI * 15
       ring.style.strokeDasharray = `${circumference}`
       ring.style.strokeDashoffset = `${circumference * (1 - share)}`
+    }
+
+    let tickerTimer: ReturnType<typeof setTimeout> | undefined
+    const narrate = (msg: string) => {
+      const ticker = el.querySelector<HTMLElement>('[data-ticker]')!
+      ticker.hidden = false
+      ticker.textContent = msg
+      ticker.classList.remove('ticker-in')
+      if (!ctx.prefersReducedMotion) {
+        void ticker.offsetWidth // restart the entrance animation
+        ticker.classList.add('ticker-in')
+      }
+      if (tickerTimer) clearTimeout(tickerTimer)
+      tickerTimer = setTimeout(() => {
+        ticker.hidden = true
+        ticker.textContent = ''
+      }, 4000)
     }
 
     const syncVerdictHistory = () => {
@@ -490,10 +558,16 @@ const spine: Act = {
       row?.classList.add('row-flag-beam')
       const chip = row?.querySelector('[data-verdict-chip]')
       chip?.classList.add('verdict-flip')
-      ledgerEl.scrollTop = (row as HTMLElement)?.offsetTop ?? ledgerEl.scrollHeight
+      row?.classList.add('row-flash')
+      const rowTop = (row as HTMLElement)?.offsetTop ?? ledgerEl.scrollHeight
+      ledgerEl.scrollTo({
+        top: Math.max(0, rowTop - ledgerEl.clientHeight / 2),
+        behavior: ctx.prefersReducedMotion ? 'auto' : 'smooth',
+      })
       setTimeout(() => {
         row?.classList.remove('row-flag-beam')
         chip?.classList.remove('verdict-flip')
+        row?.classList.remove('row-flash')
       }, ctx.prefersReducedMotion ? 0 : 1500)
     }
 
@@ -503,7 +577,10 @@ const spine: Act = {
         .map((e) => rowHtml(e, newSeqs.includes(e.seq)))
         .join('')
       ledgerEl.innerHTML = html
-      ledgerEl.scrollTop = ledgerEl.scrollHeight
+      ledgerEl.scrollTo({
+        top: ledgerEl.scrollHeight,
+        behavior: ctx.prefersReducedMotion ? 'auto' : 'smooth',
+      })
       updateSpineHub()
       if (selectedAgent) updateSpotlight(selectedAgent)
     }
@@ -597,6 +674,7 @@ const spine: Act = {
       onHighlightProvenance: highlightProvenance,
       onFlagBeam: flagBeam,
       onMetricsPulse: () => updateMetrics(true),
+      onNarrate: narrate,
       wait: (ms: number) =>
         new Promise<void>((r) =>
           setTimeout(r, ctx.prefersReducedMotion ? 50 : ms),
@@ -705,16 +783,21 @@ const spine: Act = {
       provenanceEl.hidden = true
     })
 
-    el.querySelector('[data-filter-actor]')!.addEventListener('change', (ev) => {
-      filters.actor = (ev.target as HTMLSelectElement).value
-      repaint()
-    })
-    el.querySelector('[data-filter-kind]')!.addEventListener('change', (ev) => {
-      filters.kind = (ev.target as HTMLSelectElement).value
-      repaint()
-    })
-    el.querySelector('[data-filter-verdict]')!.addEventListener('change', (ev) => {
-      filters.verdict = (ev.target as HTMLSelectElement).value
+    el.querySelector('[data-filters]')!.addEventListener('click', (ev) => {
+      const chip = (ev.target as HTMLElement).closest('.fchip') as HTMLButtonElement | null
+      if (!chip) return
+      const group = chip.closest('[data-fgroup]') as HTMLElement
+      const key = group.getAttribute('data-fgroup') as 'actor' | 'kind' | 'verdict'
+      const value = chip.getAttribute('data-fvalue') ?? ''
+      // Clicking the active chip clears the filter back to "all".
+      filters[key] = filters[key] === value ? '' : value
+      group.querySelectorAll('.fchip').forEach((c) => {
+        c.setAttribute(
+          'aria-pressed',
+          String((c.getAttribute('data-fvalue') ?? '') === filters[key]),
+        )
+      })
+      provenanceEl.hidden = true // popover anchors to rows that may re-filter away
       repaint()
     })
 
