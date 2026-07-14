@@ -16,6 +16,8 @@ export interface DemoCallbacks {
   onHighlightProvenance: (seq: number) => void
   onFlagBeam: (seq: number) => void
   onMetricsPulse: () => void
+  /** One-line narration shown in the demo ticker while a sequence runs. */
+  onNarrate: (msg: string) => void
   wait: (ms: number) => Promise<void>
 }
 
@@ -34,6 +36,7 @@ export async function demoDataSteward(
   cb: DemoCallbacks,
 ): Promise<void> {
   cb.onAgentStatus('data-steward', 'writing')
+  cb.onNarrate('data-steward appends a claim with tool provenance\u2026')
   const evt = sim.appendScripted({
     kind: 'claim',
     actor: 'data-steward',
@@ -44,6 +47,7 @@ export async function demoDataSteward(
   cb.onEvents([evt], { pulseFrom: 'data-steward' })
   await sleep(cb, 400)
   cb.onHighlightProvenance(evt.seq)
+  cb.onNarrate('claim recorded \u2014 popover shows its provenance lineage')
   cb.onAgentStatus('data-steward', 'idle')
 }
 
@@ -54,10 +58,12 @@ export async function demoComplianceSentinel(
 ): Promise<void> {
   const subj = subject(sim)
   cb.onAgentStatus('compliance-sentinel', 'writing')
+  cb.onNarrate('external portal injects a stale copy of a known subject\u2026')
   const injected = sim.injectStaleFact(subj)
   cb.onEvents([injected], { pulseFrom: 'external-portal' })
   await sleep(cb, 500)
   cb.onAgentStatus('compliance-sentinel', 'flagging')
+  cb.onNarrate('sentinel scans for the collision\u2026')
   let flagged: LedgerEvent | undefined
   for (let i = 0; i < 4 && !flagged; i++) {
     const batch = sim.tick()
@@ -70,9 +76,11 @@ export async function demoComplianceSentinel(
   if (flagged) cb.onFlagBeam(injected.seq)
   await sleep(cb, 400)
   cb.onAgentStatus('compliance-sentinel', 'reconciling')
+  cb.onNarrate('reconciling \u2014 stale verdicts flip amber')
   sim.reconcile()
   cb.onEvents([])
   cb.onAgentStatus('compliance-sentinel', 'idle')
+  cb.onNarrate('ledger reconciled \u2014 newest claim per subject wins')
 }
 
 /** Partner Liaison → handoff entry; pulse travels node→spine→node. */
@@ -81,6 +89,7 @@ export async function demoPartnerLiaison(
   cb: DemoCallbacks,
 ): Promise<void> {
   cb.onAgentStatus('partner-liaison', 'writing')
+  cb.onNarrate('handoff leaves the liaison, crosses the spine, lands site-side\u2026')
   const evt = sim.appendScripted({
     kind: 'handoff',
     actor: 'partner-liaison',
@@ -102,6 +111,7 @@ export async function demoSiteSuccess(
   cb: DemoCallbacks,
 ): Promise<void> {
   cb.onAgentStatus('site-success', 'writing')
+  cb.onNarrate('a suspicious write arrives \u2014 quarantined, excluded from KPIs\u2026')
   const suspicious = sim.injectSuspiciousWrite(subject(sim))
   cb.onEvents([suspicious], { pulseFrom: 'external-portal' })
   await sleep(cb, 400)
@@ -116,6 +126,7 @@ export async function demoSiteSuccess(
     value: 'records sponsor/activation-metric → current (verified read)',
   })
   cb.onEvents([evt], { pulseFrom: 'site-success' })
+  cb.onNarrate('metrics recomputed from verified entries only')
   cb.onMetricsPulse()
 }
 
@@ -126,6 +137,7 @@ export async function demoOrchestrator(
 ): Promise<void> {
   const subj = subject(sim)
   cb.onAgentStatus('orchestrator', 'writing')
+  cb.onNarrate('orchestrator commits a route decision\u2026')
   const route = sim.appendScripted({
     kind: 'decision',
     actor: 'orchestrator',
@@ -137,6 +149,7 @@ export async function demoOrchestrator(
   await sleep(cb, 450)
   cb.onAgentStatus('orchestrator', 'idle')
   cb.onAgentStatus('partner-liaison', 'writing')
+  cb.onNarrate('partner-liaison picks the item up \u2014 two pulses, two rows')
   const handoff = sim.appendScripted({
     kind: 'handoff',
     actor: 'partner-liaison',
