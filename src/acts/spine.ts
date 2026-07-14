@@ -109,6 +109,17 @@ const spine: Act = {
     const filters = { actor: '', kind: '', verdict: '' }
     const verdictHistory = new Map<number, string[]>()
 
+    // Change 2 — static cited baselines placed AROUND the live metrics. These
+    // are caption text only; the deterministic engine and its computed values
+    // are untouched (we add captions, not math).
+    const ss = COPY.spine.siteSuccess
+    // Render a "fragmented → governed" delta with friction (amber) and
+    // unification (teal) coloring. The split is deterministic on the fixed copy.
+    const duo = (delta: string): string => {
+      const [f, g] = delta.split('→').map((s) => s.trim())
+      return `<span class="f">${f}</span><span class="arw" aria-hidden="true">→</span><span class="g">${g}</span>`
+    }
+
     el.innerHTML = `
       <p class="eyebrow">${COPY.spine.eyebrow}</p>
       <h2>${COPY.spine.headline}</h2>
@@ -199,27 +210,52 @@ const spine: Act = {
       <div class="ledger" role="log" aria-live="polite" aria-label="Coordination ledger" data-ledger></div>
       <div class="stat-cards" data-stat-cards aria-label="Site Success metrics">
         <p class="stat-cards-owner">Site Success · computed from verified entries only</p>
+        <p class="stat-cards-note">Each card keeps its live ledger value and gains a static, cited industry baseline — the number that moves is the engine's; the number it is judged against is real.</p>
         <div class="stat-cards-grid">
           <div class="stat-card accent-green" data-stat="activation">
             <span class="stat-label">activation days</span>
             <span class="stat-value mono" data-metric-activation>—</span>
             <span class="stat-spark" data-spark-activation aria-hidden="true"></span>
+            <div class="stat-cap">
+              <div class="stat-cap-duo">${duo(ss.activationDays.delta)}</div>
+              <div class="stat-cap-sub">${ss.activationDays.sub}</div>
+              <div class="stat-cap-src">${ss.activationDays.src}</div>
+            </div>
           </div>
           <div class="stat-card accent-green" data-stat="query">
             <span class="stat-label">query rate</span>
             <span class="stat-value mono" data-metric-query>—</span>
             <span class="stat-spark" data-spark-query aria-hidden="true"></span>
+            <div class="stat-cap">
+              <div class="stat-cap-duo">${duo(ss.queryRate.delta)}</div>
+              <div class="stat-cap-sub">${ss.queryRate.sub}</div>
+              <div class="stat-cap-src">${ss.queryRate.src}</div>
+            </div>
           </div>
           <div class="stat-card accent-green" data-stat="verified">
             <span class="stat-label">verified share</span>
             <span class="stat-value mono" data-metric-verified>—</span>
             <span class="stat-spark" data-spark-verified aria-hidden="true"></span>
+            <div class="stat-cap">
+              <div class="stat-cap-duo">${duo(ss.verifiedShare.delta)}</div>
+              <div class="stat-cap-sub">${ss.verifiedShare.sub}</div>
+              <div class="stat-cap-src">${ss.verifiedShare.src}</div>
+            </div>
           </div>
-          <div class="stat-card accent-green" data-stat="quarantined">
+          <div class="stat-card accent-green stat-integrity" data-stat="quarantined">
             <span class="stat-label">quarantined excluded</span>
             <span class="stat-value mono" data-metric-quarantined>—</span>
             <span class="stat-spark" data-spark-quarantined aria-hidden="true"></span>
+            <div class="stat-cap">
+              <div class="stat-cap-int">${ss.quarantinedExcluded.integrity}</div>
+              <div class="stat-cap-src">${ss.quarantinedExcluded.src}</div>
+            </div>
           </div>
+        </div>
+        <p class="stat-logins-line">${ss.loginsLine}<span class="stat-cap-src">${ss.loginsSrc}</span></p>
+        <div class="stat-sources" aria-label="Sources">
+          <b>Sources</b>
+          ${ss.sources.map((s) => `<div>${s}</div>`).join('')}
         </div>
       </div>
       <div class="provenance-popover" data-provenance hidden role="dialog" aria-label="Entry provenance"></div>
