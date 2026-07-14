@@ -43,6 +43,9 @@
 
   /* Subtle accent tints for backgrounds/wash (token-only rgba on ink/accents) */
   --tint-teal: rgba(14, 118, 126, 0.1);
+  --tint-amber: rgba(169, 108, 37, 0.15);
+  --tint-indigo: rgba(84, 76, 160, 0.12);
+  --tint-green: rgba(42, 116, 82, 0.2);
   --tint-alarm: rgba(154, 44, 63, 0.12);
   --wash-panel: rgba(21, 36, 55, 0.02);
 

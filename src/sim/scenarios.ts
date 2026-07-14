@@ -8,7 +8,10 @@ import { SUBJECTS } from './engine'
 export type AgentStatus = 'idle' | 'writing' | 'flagging' | 'reconciling'
 
 export interface DemoCallbacks {
-  onEvents: (events: LedgerEvent[], meta?: { pulseFrom?: string }) => void
+  onEvents: (
+    events: LedgerEvent[],
+    meta?: { pulseFrom?: string; pulseTo?: string },
+  ) => void
   onAgentStatus: (agentId: string, status: AgentStatus) => void
   onHighlightProvenance: (seq: number) => void
   onFlagBeam: (seq: number) => void
@@ -85,7 +88,10 @@ export async function demoPartnerLiaison(
     provenance: 'human',
     value: `passes ${subject(sim)} → site & vendor bridge`,
   })
-  cb.onEvents([evt], { pulseFrom: 'partner-liaison' })
+  cb.onEvents([evt], {
+    pulseFrom: 'partner-liaison',
+    pulseTo: 'site-success',
+  })
   await sleep(cb, 600)
   cb.onAgentStatus('partner-liaison', 'idle')
 }
@@ -125,21 +131,11 @@ export async function demoOrchestrator(
     actor: 'orchestrator',
     subject: subj,
     provenance: 'synthesized',
-    value: `commits route ${subj} → data-steward then partner-liaison`,
+    value: `commits route ${subj} → partner-liaison`,
   })
   cb.onEvents([route], { pulseFrom: 'orchestrator' })
   await sleep(cb, 450)
   cb.onAgentStatus('orchestrator', 'idle')
-  cb.onAgentStatus('data-steward', 'writing')
-  const claim = sim.appendScripted({
-    kind: 'claim',
-    actor: 'data-steward',
-    subject: subj,
-    provenance: 'tool',
-  })
-  cb.onEvents([claim], { pulseFrom: 'data-steward' })
-  await sleep(cb, 450)
-  cb.onAgentStatus('data-steward', 'idle')
   cb.onAgentStatus('partner-liaison', 'writing')
   const handoff = sim.appendScripted({
     kind: 'handoff',

@@ -380,11 +380,11 @@ section[data-act='proof'] {
   color: var(--teal);
 }
 .agent-status-chip.status-flagging {
-  background: rgba(169, 108, 37, 0.15);
+  background: var(--tint-amber);
   color: var(--amber);
 }
 .agent-status-chip.status-reconciling {
-  background: rgba(84, 76, 160, 0.12);
+  background: var(--tint-indigo);
   color: var(--indigo);
 }
 .agent-event-count {
@@ -639,7 +639,7 @@ section[data-act='proof'] {
   transition: box-shadow var(--dur) var(--ease-out);
 }
 .stat-cards.stat-pulse {
-  box-shadow: 0 0 0 2px rgba(42, 116, 82, 0.2);
+  box-shadow: 0 0 0 2px var(--tint-green);
 }
 .stat-cards-owner {
   font-family: var(--font-mono);

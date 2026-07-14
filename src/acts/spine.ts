@@ -98,6 +98,7 @@ const spine: Act = {
     let selectedAgent: AgentId | null = null
     let demoRunning = false
     const filters = { actor: '', kind: '', verdict: '' }
+    const verdictHistory = new Map<number, string[]>()
 
     el.innerHTML = `
       <p class="eyebrow">${COPY.spine.eyebrow}</p>
@@ -283,6 +284,7 @@ const spine: Act = {
       fromAgent: string,
       kind: LedgerKind,
       isFlag = false,
+      fromHub = false,
     ) => {
       const idx = AGENTS.findIndex((a) => a.id === fromAgent)
       if (idx < 0) return
@@ -304,8 +306,10 @@ const spine: Act = {
       circle.setAttribute('class', `edge-pulse${kind === 'handoff' ? ' pulse-handoff' : ''}`)
       circle.setAttribute('r', '4')
       circle.setAttribute('fill', color)
-      circle.setAttribute('cx', String(p.x))
-      circle.setAttribute('cy', String(p.y))
+      const start = fromHub ? hubPos : p
+      const end = fromHub ? p : hubPos
+      circle.setAttribute('cx', String(start.x))
+      circle.setAttribute('cy', String(start.y))
       const anim = document.createElementNS(
         'http://www.w3.org/2000/svg',
         'animateMotion',
@@ -314,7 +318,7 @@ const spine: Act = {
       anim.setAttribute('fill', 'freeze')
       anim.setAttribute(
         'path',
-        `M ${p.x} ${p.y} L ${hubPos.x} ${hubPos.y}`,
+        `M ${start.x} ${start.y} L ${end.x} ${end.y}`,
       )
       circle.appendChild(anim)
       pulseG.appendChild(circle)
@@ -352,6 +356,15 @@ const spine: Act = {
       const circumference = 2 * Math.PI * 15
       ring.style.strokeDasharray = `${circumference}`
       ring.style.strokeDashoffset = `${circumference * (1 - share)}`
+    }
+
+    const syncVerdictHistory = () => {
+      for (const event of sim.events) {
+        const history = verdictHistory.get(event.seq) ?? []
+        if (history[history.length - 1] !== event.verdict) {
+          verdictHistory.set(event.seq, [...history, event.verdict])
+        }
+      }
     }
 
     const animateCount = (
@@ -440,7 +453,8 @@ const spine: Act = {
 
     const showProvenance = (e: LedgerEvent, anchor: HTMLElement) => {
       const rect = anchor.getBoundingClientRect()
-      const stageRect = stageEl.getBoundingClientRect()
+      const actRect = el.getBoundingClientRect()
+      const history = verdictHistory.get(e.seq) ?? [e.verdict]
       provenanceEl.hidden = false
       provenanceEl.innerHTML = `
         <button type="button" class="prov-close" data-close-prov aria-label="Close">×</button>
@@ -451,10 +465,11 @@ const spine: Act = {
           <dt>seq</dt><dd class="mono">#${e.seq}</dd>
           <dt>provenance</dt><dd class="mono">${e.provenance}</dd>
           <dt>verdict</dt><dd><span class="chip verdict-${e.verdict}">${e.verdict}</span></dd>
+          <dt>history</dt><dd class="mono">${history.join(' → ')}</dd>
           <dt>value</dt><dd class="mono prov-value">${e.value}</dd>
         </dl>`
-      provenanceEl.style.top = `${rect.bottom - stageRect.top + 8}px`
-      provenanceEl.style.left = `${Math.min(rect.left - stageRect.left, stageRect.width - 280)}px`
+      provenanceEl.style.top = `${rect.bottom - actRect.top + 8}px`
+      provenanceEl.style.left = `${Math.max(0, Math.min(rect.left - actRect.left, actRect.width - 320))}px`
       provenanceEl.querySelector('[data-close-prov]')!.addEventListener('click', () => {
         provenanceEl.hidden = true
       })
@@ -483,6 +498,7 @@ const spine: Act = {
     }
 
     const repaint = (newSeqs: number[] = []) => {
+      syncVerdictHistory()
       const html = sim.events
         .map((e) => rowHtml(e, newSeqs.includes(e.seq)))
         .join('')
@@ -494,15 +510,16 @@ const spine: Act = {
 
     const handleEvents = (
       events: LedgerEvent[],
-      meta?: { pulseFrom?: string },
+      meta?: { pulseFrom?: string; pulseTo?: string },
     ) => {
       const newSeqs = events.map((e) => e.seq)
       for (const e of events) {
         bumpAgentCount(e.actor)
         const { agent, status } = inferStatus(e)
         setAgentStatus(agent, status)
-        const pulseFrom =
-          meta?.pulseFrom && meta.pulseFrom === e.actor
+        const pulseFrom = e.verdict === 'quarantined'
+          ? 'compliance-sentinel'
+          : meta?.pulseFrom && meta.pulseFrom === e.actor
             ? meta.pulseFrom
             : AGENTS.some((a) => a.id === e.actor)
               ? e.actor
@@ -511,6 +528,12 @@ const spine: Act = {
           const isFlag =
             e.actor === 'compliance-sentinel' && e.value.includes('flags')
           pulseEdge(pulseFrom, e.kind, isFlag || e.verdict === 'quarantined')
+          if (meta?.pulseTo && e.kind === 'handoff') {
+            setTimeout(
+              () => pulseEdge(meta.pulseTo!, e.kind, false, true),
+              ctx.prefersReducedMotion ? 0 : 650,
+            )
+          }
         }
       }
       repaint(newSeqs)
@@ -609,7 +632,12 @@ const spine: Act = {
       } else if (ev.key === 'Enter' || ev.key === ' ') {
         ev.preventDefault()
         cards[idx].click()
-      } else if (ev.key === 'Escape') {
+      }
+    })
+    document.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape' && selectedAgent) {
+        ev.preventDefault()
+        provenanceEl.hidden = true
         closeSpotlight()
       }
     })
@@ -640,9 +668,13 @@ const spine: Act = {
     })
     el.querySelector('[data-reconcile]')!.addEventListener('click', () => {
       setAgentStatus('compliance-sentinel', 'reconciling')
+      const before = new Map(sim.events.map((event) => [event.seq, event.verdict]))
       const flipped = sim.reconcile()
       repaint()
       updateMetrics()
+      for (const event of sim.events) {
+        if (before.get(event.seq) !== event.verdict) flagBeam(event.seq)
+      }
       el.querySelector('.recon-note')?.remove()
       const div = document.createElement('div')
       div.className = 'recon-note mono'
@@ -657,6 +689,7 @@ const spine: Act = {
     })
     el.querySelector('[data-reset]')!.addEventListener('click', () => {
       sim.reset()
+      verdictHistory.clear()
       agentCounts.clear()
       AGENTS.forEach((a) => agentCounts.set(a.id, 0))
       AGENTS.forEach((a) => {
@@ -664,6 +697,7 @@ const spine: Act = {
         setAgentStatus(a.id, 'idle')
       })
       for (let i = 0; i < 6; i++) sim.tick()
+      for (const event of sim.events) bumpAgentCount(event.actor)
       repaint()
       updateMetrics()
       el.querySelector('.recon-note')?.remove()
