@@ -73,19 +73,62 @@ export const COPY = {
       'across screens no one can reconcile. The cost is not just fatigue. It ' +
       'is queries, delays, and decisions made against data that expired hours ' +
       'ago.',
-    /** Interactive "portal fatigue" counter framing. */
-    counter: {
-      initial: 6,
-      max: 14,
-      collapsedValue: 1,
-      /** Caption while the count climbs (count > 1). */
-      captionMany: 'portals a single site juggles across sponsors',
-      /** Caption once collapsed to the spine (count <= 1). */
-      captionOne: 'truth layer a site needs with SynchPharma',
-      /** Shown when the counter tips into overload (count >= 9). */
-      overloadNote: 'This is a normal week for a busy site.',
+    /**
+     * Interactive portal→spine state flip (Change 1). Onboarding a portal fans
+     * out drifting copies of the same fact; collapsing to one spine governs the
+     * data — logins and copies drop to 1 while the systems of record stay
+     * swappable underneath. Mirrors the ledger's stale → current signal.
+     */
+    flip: {
+      initialSystems: 4,
+      maxSystems: 8,
+      truthLayerNum: '1',
+      truthLayerLabel:
+        'truth layer a site needs, no matter how many portals arrive',
       addLabel: '+ onboard another portal',
+      addLabelGoverned: '+ swap in another system',
       collapseLabel: 'collapse to one spine',
+      resetLabel: 're-fragment ↺',
+      /** Systems of record — kept swappable; count is unchanged by governance. */
+      systemChips: [
+        'Veeva',
+        'legacy SIP',
+        'EDC',
+        'CTMS',
+        'eISF',
+        'safety',
+        'payments',
+        'IRB',
+      ],
+      /** The single fact that drifts into stale copies when fragmented. */
+      factNames: [
+        'site status',
+        'IRB approval',
+        'enrollment count',
+        'safety letter ack',
+        'budget version',
+        'protocol amend.',
+      ],
+      counters: {
+        loginsLabel: 'Portals a site opens',
+        loginsFragmented: 'one login each',
+        loginsGoverned: 'one credential, every trial',
+        copiesLabel: 'Versions of each fact',
+        copiesFragmented: 'copies drift out of sync',
+        copiesGoverned: 'one governed record',
+        systemsLabel: 'Systems of record',
+        systemsSub: 'unchanged — kept swappable',
+        reconLabel: 'Reconcilable?',
+        reconFragmented: 'no one can reconcile',
+        reconGoverned: 'one spine reconciles',
+        reconSubFragmented: 'truth splinters across screens',
+        reconSubGoverned:
+          'reconcile flips stale → current before anyone acts',
+      },
+      payoffFragmented:
+        'Onboarding a portal adds a destination, not a truth layer. The fix is not a better portal — collapse to one spine to see what actually changes.',
+      payoffGoverned:
+        "The systems of record didn't leave — they're still swappable. What collapsed is the copies. Govern the data, not the workflow.",
     },
     /** Problem → Spine: pivot from the pain to the mechanism. */
     transition:
@@ -147,6 +190,45 @@ export const COPY = {
       stale: 'a newer truth has superseded this',
       unverifiable: 'no provenance we can stand behind',
       quarantined: 'instruction-shaped write, held for review',
+    },
+    /**
+     * Site Success cited baselines (Change 2). Each card keeps its LIVE,
+     * engine-computed value as the moving number; these are static, sourced
+     * industry anchors placed around them so the number that moves is ours and
+     * the number it is judged against is real. The deterministic engine and its
+     * computed values are untouched — this is caption text only.
+     */
+    siteSuccess: {
+      activationDays: {
+        delta: '167 d → 90 d',
+        sub: 'industry median → NCI target',
+        src: 'AACI 2018 · WCG · NCI',
+      },
+      queryRate: {
+        delta: '20–40% → −82%',
+        sub: 'per-CRF (≤1% true error) → single-source',
+        src: 'IntuitionLabs · Curebase',
+      },
+      verifiedShare: {
+        delta: '976/10k → 14/10k',
+        sub: 'errors per 10,000 fields, paper → structured',
+        src: 'NIDA CTN',
+      },
+      quarantinedExcluded: {
+        integrity:
+          'Writes whose provenance failed, held out of the score. A fragmented estate has no gate — stale and duplicate copies count as truth and every number above inflates. Excluding them is what makes the rest real.',
+        src: 'computed from verified entries only',
+      },
+      loginsLine:
+        "One cost the cards can't hold: a site logs into 6+ systems per study — 20–22 across a full trial — and only 32% can use their own credentials. One spine collapses that to one login.",
+      loginsSrc: 'Advarra 2023 · SCRS "Cut 25" · Applied Clinical Trials',
+      /** Visible sources block — the four cited source labels. */
+      sources: [
+        'Activation days — AACI 2018 · WCG · JCTS 2023 (standard templates save ~48 d)',
+        'Query rate — IntuitionLabs · Curebase (~82% fewer queries; ~67% lower data-mgmt cost/patient)',
+        'Verified share — NIDA CTN (PMC): 14.3 vs ~976 errors / 10,000 fields',
+        'Logins per study — Advarra 2023 · SCRS "Cut 25" · Applied Clinical Trials',
+      ],
     },
     /** Spine → Partners: from the mechanism to how you actually adopt it. */
     transition:
