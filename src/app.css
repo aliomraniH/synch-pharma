@@ -193,28 +193,237 @@ section[data-act='proof'] {
 }
 
 /* ============================================================= *
- * PROBLEM — portal-fatigue counter
+ * PROBLEM — portal→spine state flip
+ * Amber = friction (fragmented), teal = unification (governed),
+ * indigo = the platform layer (systems of record). Motion is CSS
+ * transition only, neutralized by the reduce backstop in tokens.css.
  * ============================================================= */
-.fatigue {
+.portal-stage {
   margin-top: var(--space-4);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+}
+.portal-stage-head {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--line);
+  background: var(--wash-panel);
 }
-.fatigue-num {
-  font-size: 3.4rem;
+.portal-count {
+  font-size: 2.6rem;
   font-weight: 500;
+  line-height: 1;
   color: var(--indigo);
-  min-width: 2ch;
+  min-width: 1.6ch;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.portal-count-lbl {
+  color: var(--muted);
+  max-width: 24ch;
+  font-size: 0.95rem;
+}
+.portal-btns {
+  margin-left: auto;
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.portal-stack {
+  position: relative;
+  min-height: 210px;
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.portal-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--line);
+}
+.portal-systems {
+  position: absolute;
+  left: var(--space-4);
+  right: var(--space-4);
+  bottom: var(--space-3);
+  display: flex;
+  gap: var(--space-2);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.portal-syschip {
+  font-size: 0.68rem;
+  color: var(--indigo);
+  background: var(--tint-indigo);
+  border: 1px solid var(--verdict-unverifiable-ring);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+  white-space: nowrap;
+  transition: opacity var(--dur) var(--ease-out);
+}
+.portal-copies {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 124px;
+  width: 100%;
+}
+.portal-copy-card {
+  width: 150px;
+  min-height: 92px;
+  border-radius: var(--radius-sm);
+  position: absolute;
+  background: var(--card);
+  border: 1px solid var(--verdict-stale);
+  box-shadow: var(--shadow-1);
+  padding: var(--space-2) var(--space-3);
+  transition:
+    transform var(--dur) var(--ease-out),
+    opacity var(--dur) var(--ease-out),
+    border-color var(--dur) var(--ease-out),
+    background var(--dur) var(--ease-out);
+}
+.portal-ct {
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 0.03em;
+}
+.portal-cv {
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-top: var(--space-1);
+}
+.portal-cstale {
+  font-size: 0.6rem;
+  margin-top: var(--space-2);
+  color: var(--amber);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.portal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+  flex: none;
+}
+.portal-copy-card.portal-spine {
+  border-color: var(--teal);
+  background: linear-gradient(180deg, var(--card), var(--tint-teal));
+  box-shadow: var(--shadow-2);
+  width: 210px;
+}
+.portal-copy-card.portal-spine .portal-cstale {
+  color: var(--teal);
+}
+.portal-copy-card.portal-spine .portal-dot {
+  background: var(--teal);
+}
+
+.portal-counters {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--line);
+}
+.portal-cell {
+  padding: var(--space-3);
+  border-right: 1px solid var(--line);
+}
+.portal-cell:last-child {
+  border-right: none;
+}
+.portal-k {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: var(--space-2);
+}
+.portal-v {
+  font-size: 1.5rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
   transition: color var(--dur) var(--ease-out);
 }
-.fatigue-num.overload {
-  color: var(--alarm);
+.portal-v.bad {
+  color: var(--amber);
 }
-.fatigue-cap {
+.portal-v.good {
+  color: var(--teal);
+}
+.portal-v-sys {
+  color: var(--indigo);
+}
+.portal-sub {
+  font-size: 0.78rem;
   color: var(--muted);
-  max-width: 20ch;
+  margin-top: var(--space-1);
+}
+.portal-recon-wrap {
+  margin-top: 2px;
+}
+.portal-pill {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 3px 9px;
+  border-radius: 999px;
+  transition:
+    background var(--dur) var(--ease-in-out),
+    color var(--dur) var(--ease-in-out);
+}
+.portal-pill.bad {
+  background: var(--tint-amber);
+  color: var(--amber);
+}
+.portal-pill.good {
+  background: var(--tint-teal);
+  color: var(--teal);
+}
+
+.portal-payoff {
+  margin: var(--space-4) 0 0;
+  color: var(--muted);
+  max-width: 64ch;
+  transition: color var(--dur) var(--ease-out);
+}
+.portal-stage.governed ~ .portal-payoff {
+  color: var(--ink);
+}
+.portal-reset-row {
+  margin-top: var(--space-2);
+}
+.portal-reset {
+  font-size: 0.82rem;
+}
+
+@media (max-width: 620px) {
+  .portal-counters {
+    grid-template-columns: 1fr 1fr;
+  }
+  .portal-cell:nth-child(2n) {
+    border-right: none;
+  }
+  .portal-cell:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--line);
+  }
+  .portal-btns {
+    width: 100%;
+  }
 }
 
 /* ============================================================= *
@@ -824,6 +1033,84 @@ section[data-act='proof'] {
   background: var(--green);
   opacity: 0.45;
   border-radius: 1px;
+}
+
+/* Change 2 — static cited baselines around the live metrics.
+ * amber = fragmented (friction), teal = governed/single-spine (unification). */
+.stat-cards-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0 0 var(--space-3);
+  max-width: 72ch;
+}
+.stat-cap {
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--line);
+}
+.stat-cap-duo {
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+.stat-cap-duo .f {
+  color: var(--amber);
+}
+.stat-cap-duo .g {
+  color: var(--teal);
+}
+.stat-cap-duo .arw {
+  color: var(--muted);
+  margin: 0 5px;
+}
+.stat-cap-sub {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.stat-cap-int {
+  font-size: 0.72rem;
+  color: var(--ink);
+  line-height: 1.5;
+}
+.stat-cap-src {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--muted);
+  margin-top: 6px;
+  display: block;
+}
+.stat-card.stat-integrity {
+  border-top-color: var(--alarm);
+}
+.stat-logins-line {
+  margin: var(--space-3) 0 0;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.stat-sources {
+  margin-top: var(--space-3);
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.stat-sources b {
+  display: block;
+  color: var(--ink);
+  text-transform: uppercase;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--space-1);
+}
+.stat-sources div {
+  margin-top: 3px;
 }
 @media (max-width: 900px) and (min-width: 641px) {
   .spine-scene {
